@@ -1,51 +1,52 @@
 import requests # для HTTP запросов
+import matplotlib.pyplot as p
 url = 'https://api.hh.ru/vacancies' # ссылка для работы с вакансиями (из API)
-topic = ("machine learning", "data science", "big data", "data analytics") # словарь для результата
-data = {"machine learning": 0, "data science": 0, "big data": 0, "data analytics": 0}
-money = {"80к-": 0, "80-120к": 0, "120-150к": 0, "150-200к": 0, "200-300к": 0, "300к+": 0}
+topic = ["machine learning", "data science", "big data", "data analytics"] # словарь для результата
+topic_data = []
+money = ["80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+"]
+money_data = [0, 0, 0, 0, 0, 0]
 x = 0
+pages = 10
 
 for i in topic: # по темам словаря
-    zp = 0 # итоговая ЗП по конкретной теме
     n = 0 # счетчик вакансий с указанной ЗП
-    for j in range(20): # по страницам
-        x += 1
-        # print(x)
+    zp_all = 0
+    for j in range(pages): # по страницам
         par = {'text': i,'per_page': '20', 'page': j} # параметры запроса
+        x += 1
+        print(int(x / (len(topic) * pages) * 100), "%")
         r = requests.get(url, par) # выполнение запроса
         e = r.json() # декодирование json
-        try:
-            y = e['items'] # информация о вакансиях с текущей страницы
-        except:
-            print("ВАКАНСИЙ НЕТ")
-            break
+        y = e['items'] # информация о вакансиях с текущей страницы
 
         for k in y: # переберает вакансии текущей страницы
             if k['salary'] != None: #  есть ли общие данные по зарплате
                 n += 1
-                # print("ЗП не указана")
+                zp = 0
                 s = k['salary'] # записываем общие данные по зарплате в переменную s
                 if s['from'] != None and s['to'] != None: # есть ли данные по зп
-                    zp += (s['from'] + s['to']) / 2
+                    zp = (s['from'] + s['to']) / 2
                 elif s['from'] != None and s['to'] == None:
-                    zp += s['from']
+                    zp = s['from']
                 elif s['from'] == None and s['to'] != None:
-                    zp += s['to']
-                print(zp)
+                    zp = s['to']
+                zp_all += zp
                 if zp < 80000:
-                    money.update({"80к-": money["80к-"] + 1})
+                    money_data[0] += 1
                 elif zp >= 80000 and zp < 120000:
-                    money.update({"80-120к": money["80-120к"] + 1})
+                    money_data[1] += 1
                 elif zp >= 120000 and zp < 150000:
-                    money.update({"120-150к": money["120-150к"] + 1})
+                    money_data[2] += 1
                 elif zp >= 150000 and zp < 200000:
-                    money.update({"150-200к": money["150-200к"] + 1})
+                    money_data[3] += 1
                 elif zp >= 200000 and zp < 300000:
-                    money.update({"200-300к": money["200-300к"] + 1})
+                    money_data[4] += 1
                 elif zp >= 300000:
-                    money.update({"300к+": money["300к+"] + 1})
+                    money_data[5] += 1
 
-    data.update({i: int(zp / (n * 1000))})
+    topic_data.append(int(zp_all / (n * 1000)))
 
-print(data)
-print(money)
+p.bar(topic, topic_data)
+p.show()
+p.bar(money, money_data)
+p.show()
