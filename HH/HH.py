@@ -63,9 +63,14 @@ for i in zps:
     zps[i] = statistics.median(zps[i])
 
 # figure, bars = p.subplots(2) # фигура с 2 элементами
-p.xticks(rotation = 90)
-bars[0].bar(money, money_data) # 2 гистограмма
-bars[1].bar(zps.keys(), zps.values(), width = 0.1) # 1 гистограмма
-p.show() # отображение гистограмм
+# p.xticks(rotation = 90)
+# bars[0].bar(money, money_data) # 2 гистограмма
+# bars[1].bar(zps.keys(), zps.values(), width = 0.1) # 1 гистограмма
+# p.show() # отображение гистограмм
 
-p.bar(money, money_data)
+p.barh(money, money_data)
+p.show()
+p.xticks(rotation = 90)
+p.gcf().subplots_adjust(left = 0.4)
+p.barh(list(zps.keys()), list(zps.values()))
+p.show()
