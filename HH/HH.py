@@ -1,17 +1,21 @@
-import requests
+import requests as r # HTTP запросы
 import time
 import progressbar
 import matplotlib.pyplot as plt
 import numpy
 import statistics
+from collections import defaultdict
+
+money = ["80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+"]
+topic = ["machine learning", "data science", "машинное обучение", "big data", "data analytics"] # словар запроса
+val = {"KZT": 0.1788, "BYR": 29.3039, "EUR": 70.8099, "USD": 57.5043, "UAH": 2.196, "RUR": 1} # курс валют
+
 
 base_url = 'https://api.hh.ru/' # ссылка для работы (из API)
 vac_url = base_url + 'vacancies'
-topic = ["machine learning", "data science", "машинное обучение", "big data", "data analytics"] # словар запроса
 topic_data = []
 regions_data = []
 regions = []
-money = ["80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+"]
 mode = input("Select mode\n 1.Dev(4 pages, 20 vac per page)\n 2.Crazy 1000vac (20 pages, 50 vac per page)\n 3.Custom\n")
 if mode == '3':
 	pages = int(input("Enter pages num:"))
@@ -24,10 +28,9 @@ else:
 	vac_perp = 20
 	
 money_data = [0, 0, 0, 0, 0, 0]
-val = {"KZT": 0.1788, "BYR": 29.3039, "EUR": 70.8099, "USD": 57.5043, "UAH": 2.196, "RUR": 1} # курс валют
-max_progress = len(topic) * pages # рассчитываем максимальное значение прогресс бара
+max_progress = len(topic) * pages * vac_perp # рассчитываем максимальное значение прогресс бара
 bprog = progressbar.ProgressBar(max_value=max_progress)
-x = 0
+cprog = 0
 
 zps = defaultdict(list)
 dead = 0 # индикатор ложной ЗП
@@ -35,11 +38,18 @@ dead = 0 # индикатор ложной ЗП
 for i in topic: # по темам словаря
     n = 0 # счетчик вакансий с указанной ЗП
     all_zp = 0 # средняя ЗП по 1 теме
-    for j in range(3): # по страницам
-        par = {'text': i, 'page': j} # параметры запроса
-        m = r.get(url, par).json()['items'] # выполнение запроса, декодирование json и переход к вакансиям
-
+	
+    par = {'text': i,'per_page': vac_perp, 'page': '0'} # параметры запроса
+    mpages = int(r.get(vac_url, par).json()['pages']) # выполнение запроса
+    if mpages < pages:
+	    pages = mpages
+	
+    for j in range(pages): # по страницам
+        par = {'text': i, 'page': j, 'per_page': vac_perp} # параметры запроса
+        m = r.get(vac_url, par).json()['items'] # выполнение запроса, декодирование json и переход к вакансиям
         for k in m: # переберает вакансии текущей страницы
+            cprog += 1
+            bprog.update(cprog)
             if k['salary'] == None: # есть ли общие данные по зарплате
                 continue # прерывание
             s = k['salary'] # записываем общие данные по зарплате в переменную s
@@ -80,18 +90,29 @@ for i in topic: # по темам словаря
             else: # иначе
                 zps[k["name"]].append(zp)
 
+brprog.finish()
+
+tzps = []
+zin = 0
+print(zps)
 for i in zps:
-    zps[i] = statistics.median(zps[i])
+    tzps.append(statistics.median(zps[i]))
 
-# figure, bars = p.subplots(2) # фигура с 2 элементами
-# p.xticks(rotation = 90)
-# bars[0].bar(money, money_data) # 2 гистограмма
-# bars[1].bar(zps.keys(), zps.values(), width = 0.1) # 1 гистограмма
-# p.show() # отображение гистограмм
+gmode = 1
+	
+if gmode == 0:
+ figure, bars = plt.subplots(2) # фигура с 2 элементами
+ #plt.xticks(rotation = 90)
+ bars[0].barh(money, money_data) # 2 гистограмма
+ plt.gcf().subplots_adjust(left = 0.4)
+ bars[1].barh(list(zps.keys()), tzps) # 1 гистограмма
+ plt.show() # отображение гистограмм
 
-p.barh(money, money_data)
-p.show()
-p.xticks(rotation = 90)
-p.gcf().subplots_adjust(left = 0.4)
-p.barh(list(zps.keys()), list(zps.values()))
-p.show()
+
+if gmode == 1:
+ plt.barh(money, money_data)
+ plt.show()
+#plt.xticks(rotation = 90)
+ plt.gcf().subplots_adjust(left = 0.4)
+ plt.barh(list(zps.keys()), tzps)
+ plt.show()
