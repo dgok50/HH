@@ -42,9 +42,11 @@ for i in topic: # по темам словаря
     par = {'text': i,'per_page': vac_perp, 'page': '0'} # параметры запроса
     mpages = int(r.get(vac_url, par).json()['pages']) # выполнение запроса
     if mpages < pages:
-	    pages = mpages
-	
-    for j in range(pages): # по страницам
+	    npages = mpages
+    else:
+        npages = pages
+		
+    for j in range(npages): # по страницам
         par = {'text': i, 'page': j, 'per_page': vac_perp} # параметры запроса
         m = r.get(vac_url, par).json()['items'] # выполнение запроса, декодирование json и переход к вакансиям
         for k in m: # переберает вакансии текущей страницы
