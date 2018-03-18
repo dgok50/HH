@@ -2,7 +2,6 @@ import requests as r # HTTP запросы
 import time
 import progressbar
 import matplotlib.pyplot as plt
-import numpy
 import statistics
 from collections import defaultdict
 
@@ -16,13 +15,13 @@ vac_url = base_url + 'vacancies'
 topic_data = []
 regions_data = []
 regions = []
-mode = input("Select mode\n 1.Dev(4 pages, 20 vac per page)\n 2.Crazy 1000vac (20 pages, 50 vac per page)\n 3.Custom\n")
+mode = input("Select mode\n 1.Dev(4 pages, 20 vac per page)\n 2.1000vac\n 3.Custom\n")
 if mode == '3':
 	pages = int(input("Enter pages num:"))
 	vac_perp = int(input("Enter vacancies per page num:"))
 elif mode == '2':
-	pages = 20
-	vac_perp = 50
+	pages = 5
+	vac_perp = 40
 else:
 	pages = 4
 	vac_perp = 20
@@ -62,13 +61,11 @@ for i in topic: # по темам словаря
             elif s["from"] != None and s["to"] == None: # если только начальная ЗП
                 if s["from"] * val[s["currency"]] >= 300000: # если ЗП более 300000
                     zp = 300000 # ложная ЗП
-                    dead = 1 # индикатор
                 else: # иначе
                     continue # прерывание
             else: # иначе
                 if s["to"] * val[s["currency"]] < 80000: # если ЗП до 80000
                     zp = 1 # значение для 
-                    dead = 1 # ложная ЗП
                 else: # иначе
                     continue # прерывание
 
@@ -85,16 +82,13 @@ for i in topic: # по темам словаря
             elif zp >= 300000: # 6 диапазон
                 money_data[5] += 1 # + вакансия
 
-            if dead: # если ложная ЗП
-                dead = 0 # обнуление индикатора
-            else: # иначе
-                zps[k["name"]].append(zp)
+            zps[k["name"]].append(zp)
 
-brprog.finish()
+bprog.finish()
 
 tzps = []
 zin = 0
-print(zps)
+#print(zps)
 for i in zps:
     tzps.append(statistics.median(zps[i]))
 
