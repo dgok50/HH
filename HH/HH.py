@@ -1,17 +1,20 @@
 import requests as r # HTTP запросы
 import matplotlib.pyplot as p # гистограммы
+import statistics
+from collections import defaultdict
 url = 'https://api.hh.ru/vacancies' # ссылка для работы с вакансиями (из API)
 topic = ("machine learning", "data science", "big data", "data analytics") # список тем
 topic_data = [] # средняя ЗП
 money = ("80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+") # список диапазонов ЗП
 money_data = [0, 0, 0, 0, 0, 0] # количество вакансий
 val = {"KZT": 0.1788, "BYR": 29.3039, "EUR": 70.8099, "USD": 57.5043, "UAH": 2.196, "RUR": 1} # курс валют
+zps = defaultdict(list)
 dead = 0 # индикатор ложной ЗП
 
 for i in topic: # по темам словаря
     n = 0 # счетчик вакансий с указанной ЗП
     all_zp = 0 # средняя ЗП по 1 теме
-    for j in range(100): # по страницам
+    for j in range(3): # по страницам
         par = {'text': i, 'page': j} # параметры запроса
         m = r.get(url, par).json()['items'] # выполнение запроса, декодирование json и переход к вакансиям
 
@@ -54,11 +57,15 @@ for i in topic: # по темам словаря
             if dead: # если ложная ЗП
                 dead = 0 # обнуление индикатора
             else: # иначе
-                all_zp += zp # добавление ЗП вакансии в сумму по теме
+                zps[k["name"]].append(zp)
 
-    topic_data.append(int(all_zp / (n * 1000))) # добавление средней ЗП по теме
+for i in zps:
+    zps[i] = statistics.median(zps[i])
 
-figure, bars = p.subplots(2) # фигура с 2 элементами
-bars[0].bar(topic, topic_data) # 1 гистограмма
-bars[1].bar(money, money_data) # 2 гистограмма
+# figure, bars = p.subplots(2) # фигура с 2 элементами
+p.xticks(rotation = 90)
+bars[0].bar(money, money_data) # 2 гистограмма
+bars[1].bar(zps.keys(), zps.values(), width = 0.1) # 1 гистограмма
 p.show() # отображение гистограмм
+
+p.bar(money, money_data)
