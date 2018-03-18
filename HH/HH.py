@@ -32,6 +32,7 @@ bprog = progressbar.ProgressBar(max_value=max_progress)
 cprog = 0
 
 zps = defaultdict(list)
+zpe = defaultdict(list)
 dead = 0 # индикатор ложной ЗП
 
 for i in topic: # по темам словаря
@@ -60,12 +61,12 @@ for i in topic: # по темам словаря
                 n += 1 # вакансий с указанной ЗП
             elif s["from"] != None and s["to"] == None: # если только начальная ЗП
                 if s["from"] * val[s["currency"]] >= 300000: # если ЗП более 300000
-                    zp = 300000 # ложная ЗП
+                    zp = s["from"] * val[s["currency"]] # ложная ЗП
                 else: # иначе
                     continue # прерывание
             else: # иначе
                 if s["to"] * val[s["currency"]] < 80000: # если ЗП до 80000
-                    zp = 1 # значение для 
+                    zp = s["to"] * val[s["currency"]]  # значение для 
                 else: # иначе
                     continue # прерывание
 
@@ -83,14 +84,31 @@ for i in topic: # по темам словаря
                 money_data[5] += 1 # + вакансия
 
             zps[k["name"]].append(zp)
+			
+            if 'area' in k:
+              if isinstance(k['area'], dict):
+                zpe[k["area"]["name"]].append(zp)
+                #    tr = k['area']
+                #    print(tr['id'])
+                #    regions_data[int(tr['id'])] += 1
+                #    regions[int(tr['id'])] = tr['name']
+              elif isinstance(k['area'], list):
+                    for m in k['area']:
+                        zpe[m["name"]].append(zp)
+                #        regions_data[int(m['id'])] += 1
+                #        regions[int(m['id'])] = m['name']
 
 bprog.finish()
 
 tzps = []
-zin = 0
-#print(zps)
+tzpe = []
+#print('Sum scanned' + cprog)
+print(zpe)
 for i in zps:
     tzps.append(statistics.median(zps[i]))
+	
+for i in zpe:
+    tzpe.append(statistics.median(zpe[i]))
 
 gmode = 1
 	
@@ -109,4 +127,8 @@ if gmode == 1:
 #plt.xticks(rotation = 90)
  plt.gcf().subplots_adjust(left = 0.4)
  plt.barh(list(zps.keys()), tzps)
+ plt.show()
+ 
+ plt.gcf().subplots_adjust(left = 0.4)
+ plt.barh(list(zpe.keys()), tzpe)
  plt.show()
