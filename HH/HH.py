@@ -33,7 +33,8 @@ cprog = 0
 
 zps = defaultdict(list)
 zpe = defaultdict(list)
-dead = 0 # индикатор ложной ЗП
+kids = 0
+handicapped = 0
 
 for i in topic: # по темам словаря
     n = 0 # счетчик вакансий с указанной ЗП
@@ -87,6 +88,12 @@ for i in topic: # по темам словаря
 
             zps[k["name"]].append(zp)
 			
+            if 'accept_kids' in k:
+                kids += int(k['accept_kids'])
+				
+            if 'accept_handicapped' in k:
+                handicapped += int(k['accept_handicapped'])
+
             if 'area' in k:
               if isinstance(k['area'], dict):
                 zpe[k["area"]["name"]].append(zp)
@@ -101,6 +108,9 @@ bprog.finish()
 tzps = []
 tzpe = []
 print(cprog)
+
+print(kids)
+print(handicapped)
 #print(zpe)
 for i in zps:
     tzps.append(statistics.median(zps[i]))
@@ -120,23 +130,34 @@ if gmode == 0:
 
 
 if gmode == 1:
+ plt.Figure()
+ thismanager = plt.get_current_fig_manager()
+ thismanager.window.wm_iconbitmap('hh.ico')
+
  plt.xlabel("Рубли")
  plt.ylabel("Количество вакансий") 
  plt.title("Зарплаты")
  plt.barh(money, money_data)
+ plt.gcf().canvas.set_window_title('Зарплаты')
  plt.show()
 #plt.xticks(rotation = 90)
 
+ thismanager = plt.get_current_fig_manager()
+ thismanager.window.wm_iconbitmap('hh.ico')
  plt.xlabel("Зарплата(Р)")
  plt.ylabel("Название вакансии") 
  plt.title("Распределение по вакансиям")
  plt.gcf().subplots_adjust(left = 0.4)
+ plt.gcf().canvas.set_window_title('Распределение по вакансиям')
  plt.barh(list(zps.keys()), tzps)
  plt.show()
  
+ thismanager = plt.get_current_fig_manager()
+ thismanager.window.wm_iconbitmap('hh.ico')
  plt.xlabel("Зарплата(Р)")
  plt.ylabel("Регион") 
  plt.title("Распределение по регионам")
+ plt.gcf().canvas.set_window_title('Распределение по регионам')
  plt.gcf().subplots_adjust(left = 0.4)
  plt.barh(list(zpe.keys()), tzpe)
  plt.show()
