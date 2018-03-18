@@ -1,0 +1,11 @@
+[dgok50@db HH]$ time python3 jok_s.py
+100% (8000 of 8000) |#########################################| Elapsed Time: 0:01:09 Time: 0:01:09
+2387
+
+real    1m11,567s
+user    0m6,545s
+sys     0m0,261s
+[dgok50@db HH]$ time python3 chiza_s.py
+real    3m41,569s
+user    0m18,288s
+sys     0m0,528s

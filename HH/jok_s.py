@@ -6,7 +6,7 @@ import statistics
 from collections import defaultdict
 
 money = ["80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+"]
-topic = ["machine learning", "data science", "машинное обучение", "big data", "data analytics"] # словар запроса
+topic = ("machine learning", "data science", "big data", "data analytics") # словар запроса
 val = {"KZT": 0.1788, "BYR": 29.3039, "EUR": 70.8099, "USD": 57.5043, "UAH": 2.196, "RUR": 1} # курс валют
 
 
@@ -15,16 +15,9 @@ vac_url = base_url + 'vacancies'
 topic_data = []
 regions_data = []
 regions = []
-mode = input("Select mode\n 1.Dev(4 pages, 20 vac per page)\n 2.1000vac\n 3.Custom\n")
-if mode == '3':
-	pages = int(input("Enter pages num:"))
-	vac_perp = int(input("Enter vacancies per page num:"))
-elif mode == '2':
-	pages = 5
-	vac_perp = 40
-else:
-	pages = 4
-	vac_perp = 20
+
+pages = 100
+vac_perp = 20
 	
 money_data = [0, 0, 0, 0, 0, 0]
 max_progress = len(topic) * pages * vac_perp # рассчитываем максимальное значение прогресс бара
@@ -82,8 +75,6 @@ for i in topic: # по темам словаря
                 money_data[4] += 1 # + вакансия
             elif zp >= 300000: # 6 диапазон
                 money_data[5] += 1 # + вакансия
-
-            zps[k["name"]].append(zp)
 			
             if 'area' in k:
               if isinstance(k['area'], dict):
@@ -100,41 +91,6 @@ tzps = []
 tzpe = []
 print(cprog)
 #print(zpe)
-for i in zps:
-    tzps.append(statistics.median(zps[i]))
-	
+
 for i in zpe:
     tzpe.append(statistics.median(zpe[i]))
-
-gmode = 1
-	
-if gmode == 0:
- figure, bars = plt.subplots(2) # фигура с 2 элементами
- #plt.xticks(rotation = 90)
- bars[0].barh(money, money_data) # 2 гистограмма
- plt.gcf().subplots_adjust(left = 0.4)
- bars[1].barh(list(zps.keys()), tzps) # 1 гистограмма
- plt.show() # отображение гистограмм
-
-
-if gmode == 1:
- plt.xlabel("Рубли")
- plt.ylabel("Количество вакансий") 
- plt.title("Зарплаты")
- plt.barh(money, money_data)
- plt.show()
-#plt.xticks(rotation = 90)
-
- plt.xlabel("Зарплата(Р)")
- plt.ylabel("Название вакансии") 
- plt.title("Распределение по вакансиям")
- plt.gcf().subplots_adjust(left = 0.4)
- plt.barh(list(zps.keys()), tzps)
- plt.show()
- 
- plt.xlabel("Зарплата(Р)")
- plt.ylabel("Регион") 
- plt.title("Распределение по регионам")
- plt.gcf().subplots_adjust(left = 0.4)
- plt.barh(list(zpe.keys()), tzpe)
- plt.show()
