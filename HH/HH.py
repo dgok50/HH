@@ -1,13 +1,34 @@
-import requests as r # HTTP запросы
-import matplotlib.pyplot as p # гистограммы
+import requests
+import time
+import progressbar
+import matplotlib.pyplot as plt
+import numpy
 import statistics
-from collections import defaultdict
-url = 'https://api.hh.ru/vacancies' # ссылка для работы с вакансиями (из API)
-topic = ("machine learning", "data science", "big data", "data analytics") # список тем
-topic_data = [] # средняя ЗП
-money = ("80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+") # список диапазонов ЗП
-money_data = [0, 0, 0, 0, 0, 0] # количество вакансий
+
+base_url = 'https://api.hh.ru/' # ссылка для работы (из API)
+vac_url = base_url + 'vacancies'
+topic = ["machine learning", "data science", "машинное обучение", "big data", "data analytics"] # словар запроса
+topic_data = []
+regions_data = []
+regions = []
+money = ["80к-", "80-120к", "120-150к", "150-200к", "200-300к", "300к+"]
+mode = input("Select mode\n 1.Dev(4 pages, 20 vac per page)\n 2.Crazy 1000vac (20 pages, 50 vac per page)\n 3.Custom\n")
+if mode == '3':
+	pages = int(input("Enter pages num:"))
+	vac_perp = int(input("Enter vacancies per page num:"))
+elif mode == '2':
+	pages = 20
+	vac_perp = 50
+else:
+	pages = 4
+	vac_perp = 20
+	
+money_data = [0, 0, 0, 0, 0, 0]
 val = {"KZT": 0.1788, "BYR": 29.3039, "EUR": 70.8099, "USD": 57.5043, "UAH": 2.196, "RUR": 1} # курс валют
+max_progress = len(topic) * pages # рассчитываем максимальное значение прогресс бара
+bprog = progressbar.ProgressBar(max_value=max_progress)
+x = 0
+
 zps = defaultdict(list)
 dead = 0 # индикатор ложной ЗП
 
