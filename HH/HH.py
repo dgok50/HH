@@ -28,6 +28,16 @@ else:
 	
 money_data = [0, 0, 0, 0, 0, 0]
 max_progress = len(topic) * pages * vac_perp # рассчитываем максимальное значение прогресс бара
+
+maxt = 0
+
+for it in topic:
+    par = {'text': it,'per_page': vac_perp, 'page': '0'} # параметры запроса
+    maxt += int(r.get(vac_url, par).json()['found']) # выполнение запроса
+
+if max_progress > maxt:
+    max_progress = maxt
+
 bprog = progressbar.ProgressBar(max_value=max_progress)
 cprog = 0
 
