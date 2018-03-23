@@ -31,19 +31,20 @@ max_progress = len(topic) * pages * vac_perp # рассчитываем макс
 
 maxt = 0
 
-for it in topic:
-    par = {'text': it,'per_page': vac_perp, 'page': '0'} # параметры запроса
+for it in topic: # Запрос максимального количества страниц
+    par = {'text': it,'per_page': vac_perp, 'page': '0'} # 
     maxt += int(r.get(vac_url, par).json()['found']) # выполнение запроса
 
-if max_progress > maxt:
+if max_progress > maxt: # Проверка и корректировка макс знач прогрессбара
     max_progress = maxt
 
-bprog = progressbar.ProgressBar(max_value=max_progress)
-cprog = 0
+bprog = progressbar.ProgressBar(max_value=max_progress) # Создаём и инициализируем прогрессбар
+cprog = 0 # переменная для значения прогрессбара
 
 zps = defaultdict(list)
 zpe = defaultdict(list)
-kids = 0
+
+kids = 0 
 handicapped = 0
 
 for i in topic: # по темам словаря
